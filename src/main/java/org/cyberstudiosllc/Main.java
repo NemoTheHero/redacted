@@ -33,17 +33,27 @@ public class Main {
         PrettyPrinter.prettyPrint((PrettyPrintable) tree, System.out);
         String harryPotterBook3 = fileToText();
 
-        long startTime = System.nanoTime();
+        long startNanoTime = System.nanoTime();
+        long startMilliTime = System.currentTimeMillis();
         tree.getValuesForKeysContainedIn(harryPotterBook3);
-        long endTime = System.nanoTime() - startTime;
-        System.out.println("Elapsed time in seconds: " + endTime);
-        long loopStartTime = System.nanoTime();
+        long endTime = System.nanoTime() - startNanoTime;
+        long endMilliTime = System.currentTimeMillis() - startMilliTime;
+        System.out.println("Trie Search - Elapsed time in nano seconds: " + endTime);
+        System.out.println("Trie Search -Elapsed time in milli seconds: " + endMilliTime);
+
+
+        long loopNanoStartTime = System.nanoTime();
+        long loopMilliStartTime = System.currentTimeMillis();
         for (String redactedPhrase : redactedPhrases()) {
             StringUtils.countMatches(harryPotterBook3, redactedPhrase);
         }
-        long loopEndTime = System.nanoTime() - loopStartTime;
-        System.out.println("Elapsed time in nano seconds: " + loopEndTime);
+        long loopNanoEndTime = System.nanoTime() - loopNanoStartTime;
+        long loopNanoMilliTime = System.currentTimeMillis() - loopMilliStartTime;
+        System.out.println("Loop Search - Elapsed time in nano seconds: " + loopNanoEndTime);
+        System.out.println("Loop Search =Elapsed time in milli seconds: " + loopNanoMilliTime);
 
+        // loop search gets exponentially longer as we add more arrays to search
+        // comment out some
     }
 
 
@@ -100,6 +110,16 @@ public class Main {
         arrayList.add("professor trelawney");
         arrayList.add("professor mcgonagall");
         arrayList.add("the gryffindor");
+        arrayList.add("people like");
+        arrayList.add("muggle studies");
+        arrayList.add("quidditch cup");
+        arrayList.add("ron and");
+        arrayList.add("harry and");
+        arrayList.add("harry sat down");
+        arrayList.add("mouth was slightly open");
+        arrayList.add("he said");
+        arrayList.add("she said");
+        arrayList.add("said suddenly");
         return arrayList;
     }
 }
