@@ -37,9 +37,10 @@ public class Main {
         System.out.println("Values for keys starting with 'vel f': " + Iterables.toString(tree.getValuesForKeysStartingWith("vel")));
         long startTime = System.currentTimeMillis();
 
-        System.out.println(Iterables.toString(tree.getKeysContainedIn(fileToText())));
+//        System.out.println(Iterables.toString(tree.getKeysContainedIn(fileToText())));
+        tree.getKeysContainedIn(fileToText());
         long endTime = System.currentTimeMillis() - startTime;
-        System.out.println("Elapsed time in nanoseconds: " + endTime);
+        System.out.println("Elapsed time in milliseconds: " + endTime);
 //        System.out.println(Iterables.toString(tree.getValuesForKeysContainedIn(fileToText())));
 
 
