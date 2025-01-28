@@ -36,6 +36,8 @@ public class Main {
         long startNanoTime = System.nanoTime();
         long startMilliTime = System.currentTimeMillis();
         tree.getValuesForKeysContainedIn(harryPotterBook3);
+        //even creating the radix tree on the fly is way faster
+        //createRadixTreeFromArrays().getKeysContainedIn(harryPotterBook3);
         long endTime = System.nanoTime() - startNanoTime;
         long endMilliTime = System.currentTimeMillis() - startMilliTime;
         System.out.println("Trie Search - Elapsed time in nano seconds: " + endTime);
