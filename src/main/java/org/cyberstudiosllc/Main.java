@@ -1,12 +1,7 @@
 package org.cyberstudiosllc;
 
-import com.googlecode.concurrenttrees.common.Iterables;
-import com.googlecode.concurrenttrees.common.PrettyPrinter;
-
-import com.googlecode.concurrenttrees.radix.node.NodeFactory;
-import com.googlecode.concurrenttrees.radix.node.concrete.DefaultCharArrayNodeFactory;
-import com.googlecode.concurrenttrees.radix.node.util.PrettyPrintable;
-import com.googlecode.concurrenttrees.radixinverted.ConcurrentInvertedRadixTree;
+import org.ahocorasick.trie.Emit;
+import org.ahocorasick.trie.Trie;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -14,30 +9,25 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
-    private static final NodeFactory nodeFactory = new DefaultCharArrayNodeFactory();
-
-    protected static NodeFactory getNodeFactory() {
-        return nodeFactory;
-    }
 
     public static void main(String[] args) throws IOException {
-        ConcurrentInvertedRadixTree<Integer> tree = createRadixTreeFromArrays();
+
+
 
         System.out.println("Tree structure:");
         // PrettyPrintable is a non-public API for testing, prints semi-graphical representations of trees...
-        PrettyPrinter.prettyPrint((PrettyPrintable) tree, System.out);
         String harryPotterBook3 = fileToText();
-
         long startNanoTime = System.nanoTime();
         long startMilliTime = System.currentTimeMillis();
-        tree.getValuesForKeysContainedIn(harryPotterBook3);
-        //even creating the radix tree on the fly is way faster
-        //createRadixTreeFromArrays().getKeysContainedIn(harryPotterBook3);
+        Trie.TrieBuilder trieBuilder = Trie.builder().ignoreOverlaps().onlyWholeWords();
+        for (String e: redactedPhrases()) {
+            trieBuilder.addKeyword(e.toLowerCase());
+        }
+        Collection<Emit> emits = trieBuilder.build().parseText(harryPotterBook3);
+        emits.forEach(System.out::println);
         long endTime = System.nanoTime() - startNanoTime;
         long endMilliTime = System.currentTimeMillis() - startMilliTime;
         System.out.println("Trie Search - Elapsed time in nano seconds: " + endTime);
@@ -57,6 +47,7 @@ public class Main {
         // loop search gets exponentially longer as we add more arrays to search
         // comment out some
     }
+
 
 
     private static String fileToText() throws IOException {
@@ -81,22 +72,9 @@ public class Main {
                 // Print all the content of a file
                 line.append((char) i);
             }
-            return line.toString().replaceAll("[^a-zA-Z ]", "").toLowerCase();
+
+            return line.toString().trim().replaceAll("[^a-zA-Z0-9 ]", "").replaceAll("/\s\s+/g", " ").toLowerCase();
         }
-    }
-
-    private static ConcurrentInvertedRadixTree<Integer> createRadixTreeFromArrays() {
-        ConcurrentInvertedRadixTree<Integer> tree = new ConcurrentInvertedRadixTree<Integer>(getNodeFactory());
-
-        List<String> arrayList = redactedPhrases();
-
-        int counter = 1;
-        for (String str : arrayList) {
-            tree.putIfAbsent(str, counter);
-            counter++;
-        }
-        return tree;
-
     }
 
     private static List<String> redactedPhrases() {
