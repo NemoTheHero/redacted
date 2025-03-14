@@ -5,76 +5,86 @@ import org.ahocorasick.trie.Trie;
 import org.apache.commons.lang3.StringUtils;
 
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
 
-
-
-        System.out.println("Tree structure:");
         // PrettyPrintable is a non-public API for testing, prints semi-graphical representations of trees...
-        String harryPotterBook3 = fileToText();
-        long startNanoTime = System.nanoTime();
-        long startMilliTime = System.currentTimeMillis();
-        Trie.TrieBuilder trieBuilder = Trie.builder().ignoreOverlaps().onlyWholeWords();
-        for (String e: redactedPhrases()) {
-            trieBuilder.addKeyword(e.toLowerCase());
+        File file = new File("src/main/java/org/cyberstudiosllc/normalized_harry_potter.txt");
+        if (!file.exists()) {
+            fileToText();
         }
-        Collection<Emit> emits = trieBuilder.build().parseText(harryPotterBook3);
-        emits.forEach(System.out::println);
-        long endTime = System.nanoTime() - startNanoTime;
-        long endMilliTime = System.currentTimeMillis() - startMilliTime;
-        System.out.println("Trie Search - Elapsed time in nano seconds: " + endTime);
-        System.out.println("Trie Search -Elapsed time in milli seconds: " + endMilliTime);
 
 
-        long loopNanoStartTime = System.nanoTime();
-        long loopMilliStartTime = System.currentTimeMillis();
-        for (String redactedPhrase : redactedPhrases()) {
-            StringUtils.countMatches(harryPotterBook3, redactedPhrase);
+        try {
+            String normalizedContent = readFileToString("src/main/java/org/cyberstudiosllc/normalized_harry_potter.txt");
+
+            System.out.println(normalizedContent);
+            long startNanoTime = System.nanoTime();
+            long startMilliTime = System.currentTimeMillis();
+            Trie.TrieBuilder trieBuilder = Trie.builder().ignoreOverlaps().onlyWholeWords();
+            for (String e : redactedPhrases()) {
+                trieBuilder.addKeyword(e.replaceAll("[^a-zA-Z0-9.\\s]", "‡"));
+            }
+            Collection<Emit> emits = trieBuilder.build().parseText(normalizedContent);
+            emits.forEach(System.out::println);
+            long endTime = System.nanoTime() - startNanoTime;
+            long endMilliTime = System.currentTimeMillis() - startMilliTime;
+            System.out.println("Trie Search - Elapsed time in nano seconds: " + endTime);
+            System.out.println("Trie Search -Elapsed time in milli seconds: " + endMilliTime);
+
+
+            long loopNanoStartTime = System.nanoTime();
+            long loopMilliStartTime = System.currentTimeMillis();
+            for (String redactedPhrase : redactedPhrases()) {
+                StringUtils.countMatches(normalizedContent, redactedPhrase);
+            }
+            long loopNanoEndTime = System.nanoTime() - loopNanoStartTime;
+            long loopNanoMilliTime = System.currentTimeMillis() - loopMilliStartTime;
+            System.out.println("Loop Search - Elapsed time in nano seconds: " + loopNanoEndTime);
+            System.out.println("Loop Search =Elapsed time in milli seconds: " + loopNanoMilliTime);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        long loopNanoEndTime = System.nanoTime() - loopNanoStartTime;
-        long loopNanoMilliTime = System.currentTimeMillis() - loopMilliStartTime;
-        System.out.println("Loop Search - Elapsed time in nano seconds: " + loopNanoEndTime);
-        System.out.println("Loop Search =Elapsed time in milli seconds: " + loopNanoMilliTime);
-
-        // loop search gets exponentially longer as we add more arrays to search
-        // comment out some
     }
 
 
-
-    private static String fileToText() throws IOException {
+    private static void fileToText() throws IOException {
         {
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            String inputFile = "src/main/java/org/cyberstudiosllc/harry_potter_3.txt"; // Replace with your input file path
+            String outputFile = "src/main/java/org/cyberstudiosllc/normalized_harry_potter.txt"; // Replace with your desired output file path
 
+            try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+                 BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
 
-            // Reading File name
-            String path = "src/main/java/org/cyberstudiosllc/harry_potter_3.txt";
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String cleanedLine = line.replaceAll("[^a-zA-Z0-9.\\s]", "‡"); //Removes all special characters except alphanumeric and spaces
+                    writer.write(cleanedLine);
+                    writer.newLine();
+                }
 
-            FileReader fr = new FileReader(path);
+                System.out.println("Special characters removed and written to " + outputFile);
 
-            // Declaring loop variable
-            int i;
-            StringBuilder line = new StringBuilder();
-
-
-            // Holds true till there is nothing to read
-            while ((i = fr.read()) != -1) {
-
-                // Print all the content of a file
-                line.append((char) i);
+            } catch (IOException e) {
+                System.err.println("Error processing file: " + e.getMessage());
             }
-
-            return line.toString().trim().replaceAll("[^a-zA-Z0-9 ]", "").replaceAll("/\s\s+/g", " ").toLowerCase();
         }
+    }
+
+    public static String readFileToString(String filePath) throws IOException {
+        StringBuilder content = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line);
+            }
+        }
+        return content.toString();
     }
 
     private static List<String> redactedPhrases() {
