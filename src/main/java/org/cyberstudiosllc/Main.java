@@ -10,6 +10,9 @@ import java.util.*;
 
 public class Main {
 
+    static final String replacementCharacter = "~"; // this should be an ascii character between 1-128 to ensure it's only 1 byte
+
+
     public static void main(String[] args) throws IOException {
 
         // PrettyPrintable is a non-public API for testing, prints semi-graphical representations of trees...
@@ -21,12 +24,11 @@ public class Main {
 
         try {
             String normalizedContent = readFileToString("src/main/java/org/cyberstudiosllc/normalized_harry_potter.txt");
-
             long startNanoTime = System.nanoTime();
             long startMilliTime = System.currentTimeMillis();
-            Trie.TrieBuilder trieBuilder = Trie.builder().ignoreOverlaps().onlyWholeWords().ignoreCase();
+            Trie.TrieBuilder trieBuilder = Trie.builder().ignoreOverlaps().ignoreCase();
             for (String e : redactedPhrases()) {
-                trieBuilder.addKeyword(e.replaceAll("[^a-zA-Z0-9.\\s]", "‡"));
+                trieBuilder.addKeyword(e.replaceAll("[^a-zA-Z0-9.\\s]", replacementCharacter));
             }
             Collection<Emit> emits = trieBuilder.build().parseText(normalizedContent);
             emits.forEach(System.out::println);
@@ -34,7 +36,6 @@ public class Main {
             long endMilliTime = System.currentTimeMillis() - startMilliTime;
             System.out.println("Trie Search - Elapsed time in nano seconds: " + endTime);
             System.out.println("Trie Search -Elapsed time in milli seconds: " + endMilliTime);
-
 
             long loopNanoStartTime = System.nanoTime();
             long loopMilliStartTime = System.currentTimeMillis();
@@ -56,13 +57,12 @@ public class Main {
 
             String inputFile = "src/main/java/org/cyberstudiosllc/harry_potter_3.txt"; // Replace with your input file path
             String outputFile = "src/main/java/org/cyberstudiosllc/normalized_harry_potter.txt"; // Replace with your desired output file path
-
             try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
                  BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
 
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    String cleanedLine = line.replaceAll("[^a-zA-Z0-9.\\s]", "‡"); //Removes all special characters except alphanumeric and spaces
+                    String cleanedLine = line.replaceAll("[^a-zA-Z0-9.\\s]", replacementCharacter); //Removes all special characters except alphanumeric and spaces
                     writer.write(cleanedLine);
                     writer.newLine();
                 }
@@ -80,7 +80,7 @@ public class Main {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                content.append(line);
+                content.append(line).append(System.lineSeparator());
             }
         }
         return content.toString();
@@ -109,6 +109,7 @@ public class Main {
         arrayList.add("he said");
         arrayList.add("she said");
         arrayList.add("said suddenly");
+        arrayList.add("Buckbeak");
         return arrayList;
     }
 }
