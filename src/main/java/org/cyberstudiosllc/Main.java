@@ -22,10 +22,9 @@ public class Main {
         try {
             String normalizedContent = readFileToString("src/main/java/org/cyberstudiosllc/normalized_harry_potter.txt");
 
-            System.out.println(normalizedContent);
             long startNanoTime = System.nanoTime();
             long startMilliTime = System.currentTimeMillis();
-            Trie.TrieBuilder trieBuilder = Trie.builder().ignoreOverlaps().onlyWholeWords();
+            Trie.TrieBuilder trieBuilder = Trie.builder().ignoreOverlaps().onlyWholeWords().ignoreCase();
             for (String e : redactedPhrases()) {
                 trieBuilder.addKeyword(e.replaceAll("[^a-zA-Z0-9.\\s]", "‡"));
             }
